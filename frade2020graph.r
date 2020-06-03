@@ -22,13 +22,13 @@ firms2010 = firms2010[Qtd.Vínculos.CLT >= 10]
 sum(firms2010[Ind.Simples == 0, Qtd.Vínculos.CLT])
 
 firms2011 = fread('firms2011.csv')
-firms2011 = firms2011[Qtd.Vínculos.CLT >= 100]
+firms2011 = firms2011[Qtd.Vínculos.CLT >= 10]
 
 firms2012 = fread('firms2012.csv')
-firms2012 = firms2012[Qtd.Vínculos.CLT >= 100]
+firms2012 = firms2012[Qtd.Vínculos.CLT >= 10]
 
 firms2013 = fread('firms2013.csv')
-firms2013 = firms2013[Qtd.Vínculos.CLT >= 100]
+firms2013 = firms2013[Qtd.Vínculos.CLT >= 10]
 
 firmsList = list(firms2010, firms2011, firms2012, firms2013)
 
@@ -99,15 +99,21 @@ for (dtFirm in firmsList) {
 
 ggplot(graphFirmsDT, aes(x = f.year)) +
   geom_line(aes(y = f.simples.eligible), color = 'blue') +
-  geom_line(aes(y=f.nonsimples.treated), color = 'red') +
-  #  geom_line(aes(y=nonsimples), color = "red") +
-  geom_line(aes(y = nonsimples.treated), color = "blue")
+  geom_line(aes(y=f.nonsimples.treated), color = 'red')
 
+ggplot(graphFirmsDT, aes(x = f.year)) +
+  geom_line(aes(y = f.nonsimples.treated)) +
+  geom_line(aes(y = f.nonsimples))
+
+ggplot(graphFirmsDT, aes(x = f.year)) +
+  geom_line(aes(y = f.simples)) +
+  geom_line(aes(y = f.nonsimples))
+  
 ggplot(graphJobsDT, aes(x = j.year)) +
   geom_line(aes(y = j.simples.eligible), color = 'blue') +
   geom_line(aes(y=j.nonsimples.treated), color = 'red')
   
-+ggplot(graphJobsDT, aes(x = year)) +
-  geom_line(aes(y = nonsimples.treated)) +
-  geom_line(aes(y = nonsimples))
-geom_line(aes(y = simples.eligible), color = 'red')
+ggplot(graphJobsDT, aes(x = j.year)) +
+  geom_line(aes(y = j.nonsimples.treated)) +
+  geom_line(aes(y = j.nonsimples))
+

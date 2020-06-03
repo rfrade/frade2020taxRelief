@@ -7,27 +7,20 @@
 
 setwd('/home/rafael/arquivos/mestrado/2_term/metrics_II/paper/dataset')
 require(data.table)
-library(ggplot2)
 
 data2010 = fread('firms2010.csv')
+#data2010 = data2010[Qtd.Vínculos.CLT > 20]
 data2011 = fread('firms2011.csv')
+#data2011 = data2011[Qtd.Vínculos.CLT > 20]
 data2012 = fread('firms2012.csv')
+#data2012 = data2012[Qtd.Vínculos.CLT > 20]
 data2013 = fread('firms2013.csv')
+#data2013 = data2013[Qtd.Vínculos.CLT > 20]
 
+dataReg = rbind(data2010, data2011, data2012, data2013)
 
-all.simples
-all.nsimples
-simples.eligible
-nsimples.treated
-year
+dataReg$treated = dataReg$eligible*(as.numeric(!dataReg$Ind.Simples))
+dataReg$year_treated = dataReg$year*dataReg$treated
 
-firmData = data.table()
-jobsData = data.table()
-
-for() {
-  
-}
-
-graph_data = 
-  
-ggplot(aes(x = ))
+model = lm(log(Qtd.Vínculos.CLT) ~ year + treated + year_treated, data = dataReg)
+summary(model)
