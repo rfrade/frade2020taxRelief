@@ -1,6 +1,6 @@
 setwd('/home/rafael/arquivos/mestrado/2_term/metrics_II/paper/dataset/non-cleaned')
 require(data.table)
-source('../code/frade2020taxRelief/translateNCMtoCNAE.r')
+source('../../code/frade2020taxRelief/translateNCMtoCNAE.r')
 
 cnaeList = as.integer(fromNCMtoCNAE())
 
