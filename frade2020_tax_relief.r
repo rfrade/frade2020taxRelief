@@ -4,19 +4,19 @@ source('../code/frade2020taxRelief/translateNCMtoCNAE.r')
 
 cnaeList = as.integer(fromNCMtoCNAE())
 
-# after_treatmend = 1 if year = 2013, 0 otherwise
-write_filtered_file = function(table, year, after_treatmend) {
+# after_treatment = 1 if year = 2013, 0 otherwise
+write_filtered_file = function(table, year, after_treatment) {
   table = setDT(table) 
   table$eligible = as.numeric(table$CNAE.2.0.Classe %in% cnaeList)
   table = table[Ind.Atividade.Ano == 1, 
             .(Ind.Simples, eligible, Qtd.Vínculos.CLT, CNAE.2.0.Classe)]
 
-  table$year = after_treatmend
+  table$year = after_treatment
   
   name = paste("firms", year, ".csv", sep="")
-  write.table(table, name)  
+  write.table(x = table, file = name)  
 }
-table = 
+
 csv2010 = read.csv('ESTB2010.txt', stringsAsFactors=FALSE, fileEncoding="latin1", sep = ';')
 write_filtered_file(csv2010, 2010, 0)
 
@@ -25,5 +25,7 @@ write_filtered_file(csv2011, 2011, 0)
 
 csv2012 = read.csv('Estb2012.txt', stringsAsFactors=FALSE, fileEncoding="latin1", sep = ';')
 write_filtered_file('', 2012, 0)
-write_filtered_file('ESTB2013.txt', 2013, 1)
+
+csv2013 = read.csv('ESTB2013.txt', stringsAsFactors=FALSE, fileEncoding="latin1", sep = ';')
+write_filtered_file(csv2013, 2013, 1)
 
