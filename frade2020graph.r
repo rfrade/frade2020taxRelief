@@ -17,20 +17,20 @@ j.nonsimples.treated = numeric(0)
 j.eligible = numeric(0)
 j.year = numeric(0)
 
-firms2010 = fread('firms2010.csv')
-firms2010 = firms2010[Qtd.Vínculos.CLT >= 10]
-sum(firms2010[Ind.Simples == 0, Qtd.Vínculos.CLT])
-
-firms2011 = fread('firms2011.csv')
-firms2011 = firms2011[Qtd.Vínculos.CLT >= 10]
-
-firms2012 = fread('firms2012.csv')
-firms2012 = firms2012[Qtd.Vínculos.CLT >= 10]
-
-firms2013 = fread('firms2013.csv')
-firms2013 = firms2013[Qtd.Vínculos.CLT >= 10]
-
+get_firms_list = function(firms) {
+  firms = firms[((Qtd.Vínculos.CLT <= 100 & Ind.Simples == 1) | (Qtd.Vínculos.CLT <= 100 & Ind.Simples == 0))]
+  eligible = firms[eligible == 1][sample(.N, 15000, replace=TRUE)]
+  subsamples = firms[eligible == 0][sample(.N, 15000, replace=TRUE)]
+  firms = rbind(eligible, subsamples)
+  
+  return(firms)  
+}
+firms2010 = get_firms_list(fread('firms2010.csv'))
+firms2011 = get_firms_list(fread('firms2011.csv'))
+firms2012 = get_firms_list(fread('firms2012.csv'))
+firms2013 = get_firms_list(fread('firms2013.csv'))
 firmsList = list(firms2010, firms2011, firms2012, firms2013)
+
 
 graphFirmsDT = data.table(f.year,
                           f.simples,
@@ -97,23 +97,31 @@ for (dtFirm in firmsList) {
   year_t = year_t + 1
 }
 
+
+ggplot(graphJobsDT, aes(x = j.year)) +
+  geom_line(aes(y = j.simples.eligible), color = 'blue') +
+  geom_line(aes(y=j.nonsimples.treated), color = 'red')
+
+ggplot(graphJobsDT, aes(x = j.year)) +
+  geom_line(aes(y = j.simples), color = 'blue') +
+  geom_line(aes(y = j.nonsimples), color = 'red')
+
 ggplot(graphFirmsDT, aes(x = f.year)) +
   geom_line(aes(y = f.simples.eligible), color = 'blue') +
   geom_line(aes(y=f.nonsimples.treated), color = 'red')
 
 ggplot(graphFirmsDT, aes(x = f.year)) +
-  geom_line(aes(y = f.nonsimples.treated)) +
-  geom_line(aes(y = f.nonsimples))
+  geom_line(aes(y = f.nonsimples.treated), color="red") +
+  geom_line(aes(y = f.nonsimples),  color="blue")
 
 ggplot(graphFirmsDT, aes(x = f.year)) +
-  geom_line(aes(y = f.simples)) +
-  geom_line(aes(y = f.nonsimples))
+  geom_line(aes(y = f.simples), color="red") +
+  geom_line(aes(y = f.nonsimples), color="blue")
   
 ggplot(graphJobsDT, aes(x = j.year)) +
-  geom_line(aes(y = j.simples.eligible), color = 'blue') +
-  geom_line(aes(y=j.nonsimples.treated), color = 'red')
-  
-ggplot(graphJobsDT, aes(x = j.year)) +
-  geom_line(aes(y = j.nonsimples.treated)) +
-  geom_line(aes(y = j.nonsimples))
+  geom_line(aes(y = j.nonsimples.treated), color="red") +
+  geom_line(aes(y = j.nonsimples), color="blue")
 
+ggplot(graphFirmsDT, aes(x = f.year)) +
+  geom_line(aes(y = f.nonsimples.treated), color="red") +
+  geom_line(aes(y = f.nonsimples), color="blue")
