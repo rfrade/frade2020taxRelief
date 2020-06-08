@@ -8,53 +8,73 @@
 setwd('/home/rafael/arquivos/mestrado/2_term/metrics_II/paper/dataset')
 set.seed(123456)
 require(data.table)
+library(stargazer)
 
-firms2010 = fread('firms2010.csv')
-firms2010 = firms2010[((Qtd.Vínculos.CLT <= 100 & Ind.Simples == 1) | (Qtd.Vínculos.CLT <= 100 & Ind.Simples == 0))]
+# Descriptive table
+firmsNS2010 = fread('firms2010.csv')
+firmsNS2011 = fread('firms2011.csv')
+firmsNS2012 = fread('firms2012.csv')
+firmsNS2013 = fread('firms2013.csv')
 
-firms2011 = fread('firms2011.csv')
-firms2011 = firms2011[((Qtd.Vínculos.CLT <= 100 & Ind.Simples == 1) | (Qtd.Vínculos.CLT <= 100 & Ind.Simples == 0))]
+summary(firmsNS2013[eligible == 1 & Ind.Simples == 0]$Qtd.Vínculos.CLT)
+summary(firmsNS2013[eligible == 0 & Ind.Simples == 0]$Qtd.Vínculos.CLT)
+summary(firmsNS2013[eligible == 1 & Ind.Simples == 1]$Qtd.Vínculos.CLT)
+summary(firmsNS2013[eligible == 0 & Ind.Simples == 1]$Qtd.Vínculos.CLT)
 
-firms2012 = fread('firms2012.csv')
-firms2012 = firms2012[((Qtd.Vínculos.CLT <= 100 & Ind.Simples == 1) | (Qtd.Vínculos.CLT <= 100 & Ind.Simples == 0))]
-firms2012$year = 1
+firmsNS2013[eligible == 1 & Ind.Simples == 0, .N]
+firmsNS2013[eligible == 0 & Ind.Simples == 0, .N]
+firmsNS2013[eligible == 1 & Ind.Simples == 1, .N]
+firmsNS2013[eligible == 0 & Ind.Simples == 1, .N]
 
-firms2013 = fread('firms2013.csv')
-firms2013 = firms2013[((Qtd.Vínculos.CLT <= 100 & Ind.Simples == 1) | (Qtd.Vínculos.CLT <= 100 & Ind.Simples == 0))]
+# Non-SIMPLES
+firmsNS2010 = fread('firms2010.csv')[Ind.Simples == 0]
+firmsNS2011 = fread('firms2011.csv')[Ind.Simples == 0]
+firmsNS2012 = fread('firms2012.csv')[Ind.Simples == 0]
+firmsNS2013 = fread('firms2013.csv')[Ind.Simples == 0]
 
-firmsList = rbind(firms2011, firms2012)
-nrow(firmsList)
+firmsNS2012$year = 1
+firmsModel = rbind(firmsNS2010, firmsNS2011, firmsNS2012)
+firmsModel$treated = firmsModel$eligible
+modelNS12 = lm(log(Qtd.Vínculos.CLT) ~ year*treated, data = firmsModel)
 
-firmsList$treated = firmsList$eligible*(as.numeric(!firmsList$Ind.Simples))
-firmsList$year_treated = firmsList$year*firmsList$treated
+firmsNS2012$year = 0
+firmsModel = rbind(firmsNS2010, firmsNS2011, firmsNS2012, firmsNS2013)
+firmsModel$treated = firmsModel$eligible
+modelNS13 = lm(log(Qtd.Vínculos.CLT) ~ year*treated, data = firmsModel)
 
-model = lm(log(Qtd.Vínculos.CLT) ~ year*treated, data = firmsList)
-summary(model)
+summary(firmsModel)
 
-plot(log(firmsList$Qtd.Vínculos.CLT), firmsList$year_treated)
+teste[eligible == 1 & Ind.Simples == 1, .N]
+teste[eligible == 1 & Ind.Simples == 0, .N]
+teste[eligible == 0 & Ind.Simples == 1, .N]
+teste[eligible == 0 & Ind.Simples == 0, .N]
 
+#SIMPLES
+firmsS2010 = fread('firms2010.csv')[Qtd.Vínculos.CLT <= 100]
+firmsS2011 = fread('firms2011.csv')[Qtd.Vínculos.CLT <= 100]
+firmsS2012 = fread('firms2012.csv')[Qtd.Vínculos.CLT <= 100]
+firmsS2013 = fread('firms2013.csv')[Qtd.Vínculos.CLT <= 100]
 
-get_firms_list = function(firms) {
-  firms = firms[((Qtd.Vínculos.CLT > 100 & Ind.Simples == 1) | (Qtd.Vínculos.CLT > 100 & Ind.Simples == 0))]
-  #eligible = firms[eligible == 1][sample(.N, 15000, replace=TRUE)]
-  #subsamples = firms[eligible == 0][sample(.N, 15000, replace=TRUE)]
-  #firms = rbind(eligible, subsamples)
-  
-  return(firms)  
-}
+firmsS2012$year = 1
+firmsModel = rbind(firmsS2010, firmsS2011, firmsS2012)
+firmsModel$treated = as.numeric(!firmsModel$Ind.Simples)
+modelSNS12 = lm(log(Qtd.Vínculos.CLT) ~ year*treated, data = firmsModel[eligible == 1])
 
-firms2010 = get_firms_list(fread('firms2010.csv'))
-firms2011 = get_firms_list(fread('firms2011.csv'))
-firms2012 = get_firms_list(fread('firms2012.csv'))
-firms2012$year = 1
-firms2013 = get_firms_list(fread('firms2013.csv'))
+firmsS2012$year = 0
+firmsModel = rbind(firmsS2010, firmsS2011, firmsS2012, firmsS2013)
+firmsModel$treated = as.numeric(!firmsModel$Ind.Simples)
+modelSNS13 = lm(log(Qtd.Vínculos.CLT) ~ year*treated, data = firmsModel[eligible == 1])
 
-firmsModel = rbind(firms2010, firms2011, firms2012, firms2013)
+stargazer(modelSNS12, modelSNS13,modelNS12, modelNS13, 
+          title = "Diff in Diff results",
+          dep.var.labels = "Formal Jobs",
+          column.separate = 1,
+          column.labels = c("SIMPLES 12", "SIMPLES 13", "Standard 12", "Standard 13"),
+          covariate.labels = c(
+            "Year", "Treated", "Year.Treated (ATE)", "Intercept"),
+          digits = 2,
+          df = FALSE)
 
-
-model = lm(log(Qtd.Vínculos.CLT) ~ year*eligible, data = firmsModel[Ind.Simples == 0])
-summary(model)
-firmsModel[eligible == 0,.N]
 
 
 
@@ -97,7 +117,7 @@ for (index in 1:154) {
   differenceFirmsNSimples1312[index] = firmsNSimples2013 - firmsNSimples2012
   print(paste(cnae, ))
 }
-
+$Qtd.Vínculos.CLT
 printQtt = function(cnae, diffS1211, diffNS1211, diffS1312, diffNS1312) {
   
 }
