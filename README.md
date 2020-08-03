@@ -10,8 +10,10 @@ You will also need to download the file NCM2012XCNAE20.xls from concla.ibge.gov.
 
 The script translateNCMtoCNAE.r translate the NCM (Mercosur) code to CNAE (Brazilian Code). This codes refer to the firm sector of production. They are used to filter which firms were treated.
 
-Then script frade2020_tax_filter.r  generates the files with cleaned data.
+Then script frade2020_tax_cleaning.r  generates the files with cleaned data.
 
 The script frade_2020_model.r contains the regression;
 
 The script frade2020graph.r generates the graphs. 
+
+The script subsampling.r process the subsamples of the counterfactuals to check for the parallel pre-trends assumption.
